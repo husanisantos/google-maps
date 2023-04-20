@@ -1,0 +1,36 @@
+@font-face {
+  font-family: 'Drawing';
+  src:  url('fonts/Drawing.eot?1b4ekl');
+  src:  url('fonts/Drawing.eot?1b4ekl#iefix') format('embedded-opentype'),
+    url('fonts/Drawing.ttf?1b4ekl') format('truetype'),
+    url('fonts/Drawing.woff?1b4ekl') format('woff'),
+    url('fonts/Drawing.svg?1b4ekl#Drawing') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+.draw {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'Drawing' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.draw-area:before {
+  content: "\e902";
+}
+.draw-brl:before {
+  content: "\e900";
+}
+.draw-number:before {
+  content: "\e901";
+}

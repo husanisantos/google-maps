@@ -12,37 +12,39 @@ class Form extends Map {
         const container = document.createElement('div')
         const form      = document.createElement('form') 
         const title     = document.createElement('h3')
-        
         container.id    = 'gm-drawing'
-        
-        
+            
         title.innerText = this.title
         title.classList.add('form-title')
         form.appendChild(title)
 
+        this.button('test','Apenas teste')
+
         for (const index in this.fields) {
             let inner = document.createElement('div');
-            inner.classList.add('form-item'); 
+            inner.classList.add('form-item');
+            inner.classList.add(index);
 
-            let label = document.createElement('label');
-            label.textContent = this.fields[index];
-            label.setAttribute('for', index);
-            
             // criar um novo input
             const input = document.createElement('input');
             input.type = 'text';
             input.name = index;
+            input.placeholder = this.fields[index];
             
             // adicionar o label e o input dentro do div
-            
-            inner.appendChild(label);
             inner.appendChild(input);
             form.appendChild(inner);
 
         }
 
-        container.appendChild(form)
+        // Adiciona o botão para salvar
+        form.appendChild(this.button('btn-primary', 'Salvar', 'save'))
 
+        // Adiciona o botão para cancelar
+        form.appendChild(this.button('btn-danger', 'Cancelar', 'cancel'))
+
+        // Adiciona o formulário ao container
+        container.appendChild(form)
 
         // Selecione o corpo da página
         const body = document.getElementsByTagName('body')[0];
@@ -53,6 +55,23 @@ class Form extends Map {
 
     fields() {
         return this.fields
+    }
+
+    button(classes, text = '', id = '', type = 'button') {
+        const holder = document.createElement('div')
+        const button = document.createElement('button')
+
+        if(id) {
+            button.id = id;
+        }
+
+        holder.classList.add('form-item')
+        button.classList.add(classes)
+        button.setAttribute('type', type)
+        button.innerText = text
+        holder.appendChild(button)
+
+        return holder
     }
 
 }

@@ -13,6 +13,9 @@
 <!-- Cria um elemento de mapa -->
 <div id="map" class="map"></div>
 
+<!-- Inclui as fontes e ícones -->
+<link rel="stylesheet" href="../public/fonts/drawing/style.css">
+
 <!-- Inclui a folha de estilo do mapa -->
 <link rel="stylesheet" href="../public/css/map.min.css">
 

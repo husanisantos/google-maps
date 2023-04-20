@@ -69,7 +69,6 @@ class Map {
     }
 
     addShape(shape) {
-        console.log('Teste')
         //this.shapes.push(shape)
     }
 
@@ -96,7 +95,13 @@ class Map {
         }
     }
 
+    update() {
+        localStorage.setItem("map", JSON.stringify(this.shapes));
+    }
+
     loadMap() {
+
+        let self = this;
 
         this.shapes.forEach(function (obj) {
             let shape;
@@ -104,10 +109,12 @@ class Map {
             if (obj.type === "rectangle") {
                 shape = new google.maps.Rectangle({
                     bounds: obj.bounds,
+                    stored: obj
                 });
             } else if (obj.type === "polygon") {
                 shape = new google.maps.Polygon({
                     paths: obj.points,
+                    stored: obj
                 });
 
                 shape.getPaths().forEach(function (path, index) {
@@ -121,7 +128,22 @@ class Map {
             }
 
             google.maps.event.addListener(shape, 'click', function () {
-                console.log("Clicou");
+                let gmForm  = document.getElementById('gm-drawing')
+                let fields  = gmForm.querySelectorAll('[name]')
+
+                // Preenche os campos do formulário
+                fields.forEach((field) => {
+                    field.value = shape.stored[field.name];
+                });
+
+                // Exibe o formulário
+                gmForm.classList.add('visible')
+
+                // Salva as alterações
+                self.formUpdate(shape.stored, gmForm)
+
+                // Limpa e fecha o formulário
+                self.clear(gmForm);
             });
 
             google.maps.event.addListener(shape, 'bounds_changed', function () {
@@ -148,7 +170,7 @@ class Map {
         }
 
         const drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: google.maps.drawing.OverlayType.MARKER,
+            drawingMode: google.maps.drawing.OverlayType.POLYGON,
             drawingControl: true,
             drawingControlOptions: {
                 position: google.maps.ControlPosition.TOP_CENTER,
@@ -163,17 +185,23 @@ class Map {
         // Adicione um listener para o evento 'overlaycomplete' para obter informações do shape
         google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
 
-            let shape = event.overlay;
+            const gmForm = document.getElementById('gm-drawing')
+            const shape  = event.overlay;
+            const save   = document.getElementById("save");
             // Adicione o shape ao mapa
             shape.setMap(this.map);
 
-            // Armazene as informações do shape em um objeto
+            // Exibe o formulário
+            gmForm.classList.add('visible');
+
             let shapeInfo = {
                 type: event.type,
-                codigo: codigo,
-                area: area,
-                preco: preco,
             };
+        
+            for(const index in form.fields) {
+                const field = gmForm.querySelector('input[name="'+index+'"]');
+                shapeInfo[index] = field.value 
+            }
 
             if (event.type == 'rectangle') {
                 shapeInfo.bounds = shape.getBounds().toJSON();
@@ -183,17 +211,32 @@ class Map {
                 });
             }
 
-            // Adicione o objeto shapeInfo ao array de shapes
-            parent.shapes.push(shapeInfo)
-            console.log(parent.shapes)
+            shape.stored = shapeInfo
+
+            console.log(shapeInfo)
+
+            // Salva as alterações
+            parent.formUpdate(shape.stored, gmForm)
+            parent.clear(gmForm)
+            
 
             // Adicione um listener para o evento 'click' para exibir as informações do shape no console
             google.maps.event.addListener(shape, 'click', function () {
+                let gmForm  = document.getElementById('gm-drawing')
+                let fields  = gmForm.querySelectorAll('[name]')
 
+                // Preenche os campos do formulário
+                fields.forEach((field) => {
+                    field.value = shape.stored[field.name];
+                });
+
+                // Exibe o formulário
+                gmForm.classList.add('visible')
+
+                // Limpa e fecha o formulário
+                parent.clear(gmForm)
             });
 
-            // Salve o array de shapes no localStorage com o nome "map"
-            localStorage.setItem("map", JSON.stringify(parent.shapes));
         });
 
         //reloadMap(shapes, map, design);
@@ -218,6 +261,43 @@ class Map {
                 return self.fields
             }
         };
+    }
+
+    formUpdate(form) {
+  
+        const self    = this
+        const savebtn = document.getElementById('save')
+        const primary = Object.keys( this.fields )[0]
+        const mapdata = this.shapes;
+
+        savebtn.addEventListener("click", function() {
+            mapdata.forEach((element, key) => {
+                if(itemkey == element[primary]) {
+                    let data = form.querySelectorAll('[name]')
+                    data.forEach(subdata => {
+                        mapdata[key][subdata.name] = subdata.value
+                    });
+                }
+            });
+
+            self.shapes = mapdata
+            self.update()
+        }) 
+    }
+
+    clear(form) {
+        const buttons = form.querySelectorAll('button')
+        const fields  = form.querySelectorAll('[name]')
+        buttons.forEach((button) => {
+            button.addEventListener("click", function() {
+                form.classList.remove('visible')
+                setTimeout( () => {
+                    fields.forEach((field) => {
+                        field.value = ''
+                    })
+                }, 600)  
+            })
+        });
     }
 
 }
