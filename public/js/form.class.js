@@ -37,11 +37,13 @@ class Form extends Map {
 
         }
 
+
+
         // Adiciona o botão para salvar
         form.appendChild(this.button('btn-primary', 'Salvar', 'save'))
 
         // Adiciona o botão para cancelar
-        form.appendChild(this.button('btn-danger', 'Cancelar', 'cancel'))
+        form.appendChild(this.button('btn-danger', 'Remover', 'cancel'))
 
         // Adiciona o formulário ao container
         container.appendChild(form)

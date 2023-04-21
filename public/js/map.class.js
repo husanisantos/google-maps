@@ -6,6 +6,9 @@ import { Form } from "./form.class.js";
  */
 class Map {
 
+    id      = 'map'
+    formId  = 'gm-drawing'
+
     /**
     * Cria um novo objeto da classe Mapa.
     * @constructor
@@ -48,8 +51,12 @@ class Map {
         this.fields = {}
 
         this.form = {
+            id: '',
             title : ''
         }
+
+        this.formId = this.getFormId()
+
     }
 
     setId(id) {
@@ -80,18 +87,74 @@ class Map {
         return this.shapes
     }
 
+    setFormId(id) {
+        this.formId = id
+    }
+
+    getForm() {
+        const form = document.getElementById(this.getFormId())
+        return form
+    }
+
+    getFormId() {
+        return this.formId
+    }
+
     shape() {
-        self = this
+        const self = this
+        const inputs = self.getForm().querySelectorAll('[name]')
+    
         return {
-            add(code, json) {
-                self.shapes[code] = json
+            add(shape) {
+
+                inputs.forEach(input => {
+                    shape[input.name] = input.value
+                });
+
+                self.shapes.push(shape)
+                self.update()   
+        
+            },
+            update(shape) {
+
+                let code
+
+                inputs.forEach(input => {
+                    shape[input.name] = input.value
+                    code = input.value
+                });
+
+                self.shapes.forEach((element, key) => {
+                    if(element.code == code) {
+                        self.shapes[key] = shape
+                    }
+                });
+
+                self.update()
+
+            },
+            remove(shape) {
+
+                let code = shape.stored.code
+                
+                if (confirm('Tem certeza que deseja remover a área '+ code +' ?')) {
+                    self.shapes.forEach((element, key) => {
+                        if(element.code == code) {
+                            self.shapes.pop(key)
+                        }
+                    });
+    
+                    self.update()
+                    shape.setMap(null);
+                } 
+                
             },
             get(code) {
                 return self.shapes[code]
             },
             getAll() {
                 return self.shapes
-            }
+            },
         }
     }
 
@@ -101,7 +164,7 @@ class Map {
 
     loadMap() {
 
-        let self = this;
+        let self    = this;
 
         this.shapes.forEach(function (obj) {
             let shape;
@@ -130,6 +193,7 @@ class Map {
             google.maps.event.addListener(shape, 'click', function () {
                 let gmForm  = document.getElementById('gm-drawing')
                 let fields  = gmForm.querySelectorAll('[name]')
+                let remove  = document.getElementById("cancel")
 
                 // Preenche os campos do formulário
                 fields.forEach((field) => {
@@ -140,10 +204,18 @@ class Map {
                 gmForm.classList.add('visible')
 
                 // Salva as alterações
-                self.formUpdate(shape.stored, gmForm)
+                save.onclick = () => {
+                    self.shape().update(shape.stored)
+                }
+
+                // remove o shape
+                remove.onclick = () => {
+                    self.shape().remove(shape)
+                }
 
                 // Limpa e fecha o formulário
                 self.clear(gmForm);
+  
             });
 
             google.maps.event.addListener(shape, 'bounds_changed', function () {
@@ -188,6 +260,7 @@ class Map {
             const gmForm = document.getElementById('gm-drawing')
             const shape  = event.overlay;
             const save   = document.getElementById("save");
+            const remove = document.getElementById("cancel")
             // Adicione o shape ao mapa
             shape.setMap(this.map);
 
@@ -211,19 +284,21 @@ class Map {
                 });
             }
 
+          
             shape.stored = shapeInfo
 
-            console.log(shapeInfo)
-
             // Salva as alterações
-            parent.formUpdate(shape.stored, gmForm)
+            save.onclick = () => {
+                parent.shape().add(shape.stored)
+            }
+            
             parent.clear(gmForm)
             
 
             // Adicione um listener para o evento 'click' para exibir as informações do shape no console
             google.maps.event.addListener(shape, 'click', function () {
-                let gmForm  = document.getElementById('gm-drawing')
-                let fields  = gmForm.querySelectorAll('[name]')
+
+                let fields  = parent.getForm().querySelectorAll('[name]')
 
                 // Preenche os campos do formulário
                 fields.forEach((field) => {
@@ -232,6 +307,14 @@ class Map {
 
                 // Exibe o formulário
                 gmForm.classList.add('visible')
+
+                save.onclick = () => {
+                    parent.shape().update(shape.stored)
+                }
+
+                remove.onclick = () => {
+                    parent.shape().remove(shape)
+                }
 
                 // Limpa e fecha o formulário
                 parent.clear(gmForm)
@@ -263,26 +346,50 @@ class Map {
         };
     }
 
-    formUpdate(form) {
+    formUpdate(shape) {
   
         const self    = this
         const savebtn = document.getElementById('save')
-        const primary = Object.keys( this.fields )[0]
-        const mapdata = this.shapes;
+        const primary = Object.keys( self.fields )[0]
 
         savebtn.addEventListener("click", function() {
-            mapdata.forEach((element, key) => {
-                if(itemkey == element[primary]) {
-                    let data = form.querySelectorAll('[name]')
-                    data.forEach(subdata => {
-                        mapdata[key][subdata.name] = subdata.value
-                    });
+
+            let create = true
+            let update = false;
+            let shapes = self.shapes
+            let inputs = self.getForm().querySelectorAll('[name]')
+            
+            shapes.forEach((element, key) => {
+                update = false
+                inputs.forEach(input => {
+                    if(input.value == element.code && input.name == primary) {
+                        update = true
+                        create = false
+                    }
+
+                    if(update) {
+                        shape[input.name] = input.value
+                    }
+                });
+
+                if(update) {
+                    shapes.push(shape)
                 }
+
+               // element.code == inputs[element.name]
             });
 
-            self.shapes = mapdata
+            if(create) {
+                inputs.forEach(element => {
+                    shape[element.name] = element.value
+                });
+
+                shapes.push(shape)
+            }
+
             self.update()
-        }) 
+        })
+        
     }
 
     clear(form) {

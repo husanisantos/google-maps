@@ -35,7 +35,7 @@ class Map {
         return $this->id;
     }
 
-    public function setId($id): self
+    public function setId($id = 'map'): self
     {
         $this->id = $id;
 
