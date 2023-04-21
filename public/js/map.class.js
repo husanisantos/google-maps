@@ -407,6 +407,10 @@ class Map {
         });
     }
 
+    setCenter() {
+        
+    }
+
 }
 
 export { Map };
