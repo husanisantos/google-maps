@@ -1,5 +1,5 @@
 <?php
-namespace Criativi\GoogleMaps;
+namespace HusaniSantos\GoogleMaps;
 
 class Map {
     private $key;

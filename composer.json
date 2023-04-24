@@ -1,10 +1,9 @@
 {
-    "name": "criativi/google-maps",
-    "version": "1.0.0",
+    "name": "husanisantos/google-maps",
     "description": "The google-maps package  is a PHP library that allows for the generation and management of Google Maps through the Google Maps API. With this package, developers can easily create interactive maps with custom markers, location information, directions, and more.",
     "autoload": {
         "psr-4": {
-            "Criativi\\GoogleMaps\\": "src/"
+            "Husanisantos\\GoogleMaps\\": "src/"
         }
     },
     "authors": [
